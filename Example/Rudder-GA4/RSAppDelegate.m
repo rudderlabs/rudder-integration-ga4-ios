@@ -7,12 +7,24 @@
 //
 
 #import "RSAppDelegate.h"
+#import <Rudder/Rudder.h>
+#import "RudderGA4Factory.h"
 
 @implementation RSAppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+    NSString *DATA_PLANE_URL = @"https://rudderstacbumvdrexzj.dataplane.rudderstack.com";
+    NSString *WRITE_KEY = @"203EnCjvGV6qhvrcaz7MyWiQmJx";
+    
     // Override point for customization after application launch.
+    RSConfigBuilder *builder = [[RSConfigBuilder alloc] init];
+    [builder withDataPlaneUrl:DATA_PLANE_URL];
+    [builder withFactory:[RudderGA4Factory instance]];
+    [builder withLoglevel:RSLogLevelNone];
+    [builder withTrackLifecycleEvens:@NO];
+    [RSClient getInstance:WRITE_KEY config:[builder build]];
+    
     return YES;
 }
 

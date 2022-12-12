@@ -15,16 +15,16 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface RudderUtils : NSObject
+@interface RudderGA4Utils : NSObject
 
 
-extern NSArray const* IDENTIFY_RESERVED_KEYWORDS;
-extern NSArray const* TRACK_RESERVED_KEYWORDS;
-extern NSDictionary const* ECOMMERCE_EVENTS_MAPPING;
-extern NSDictionary const* PRODUCT_PROPERTIES_MAPPING;
-extern NSArray const* EVENT_WITH_PRODUCTS_ARRAY;
-extern NSDictionary const* ECOMMERCE_PROPERTY_MAPPING;
-extern NSArray const* EVENT_WITH_PRODUCTS_AT_ROOT;
+extern NSArray const* IDENTIFY_RESERVED_KEYWORDS_GA4;
+extern NSArray const* TRACK_RESERVED_KEYWORDS_GA4;
+extern NSDictionary const* ECOMMERCE_EVENTS_MAPPING_GA4;
+extern NSDictionary const* PRODUCT_PROPERTIES_MAPPING_GA4;
+extern NSArray const* EVENT_WITH_PRODUCTS_ARRAY_GA4;
+extern NSDictionary const* ECOMMERCE_PROPERTY_MAPPING_GA4;
+extern NSArray const* EVENT_WITH_PRODUCTS_AT_ROOT_GA4;
 
 - (id)init;
 +(BOOL) isEmpty:(NSObject *) value;

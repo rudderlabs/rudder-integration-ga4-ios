@@ -6,7 +6,7 @@
 //
 
 #import "RudderGA4Integration.h"
-#import "RudderUtils.h"
+#import "RudderGA4Utils.h"
 
 @implementation RudderGA4Integration
 
@@ -40,7 +40,7 @@
         NSMutableDictionary *params;
         if ([type  isEqualToString: @"identify"]) {
             NSString *userId = message.userId;
-            if (![RudderUtils isEmpty:userId]) {
+            if (![RudderGA4Utils isEmpty:userId]) {
                 [RSLogger logDebug:@"Setting userId to firebase"];
                 [FIRAnalytics setUserID:userId];
             }
@@ -48,8 +48,8 @@
             if (traits != nil) {
                 for (NSString *key in [traits keyEnumerator]) {
                     if([key isEqualToString:@"userId"]) continue;
-                    NSString* firebaseKey = [RudderUtils getTrimKey:key];
-                    if (![IDENTIFY_RESERVED_KEYWORDS containsObject:firebaseKey]) {
+                    NSString* firebaseKey = [RudderGA4Utils getTrimKey:key];
+                    if (![IDENTIFY_RESERVED_KEYWORDS_GA4 containsObject:firebaseKey]) {
                         [RSLogger logDebug:[NSString stringWithFormat:@"Setting userProperty to Firebase: %@", firebaseKey]];
                         [FIRAnalytics setUserPropertyString:traits[key] forName:firebaseKey];
                     }
@@ -57,7 +57,7 @@
             }
         } else if ([type isEqualToString:@"screen"]) {
             NSString *screenName = message.event;
-            if ([RudderUtils isEmpty:screenName]) {
+            if ([RudderGA4Utils isEmpty:screenName]) {
                 return;
             }
             params = [[NSMutableDictionary alloc] init];
@@ -67,7 +67,7 @@
             [FIRAnalytics logEventWithName:kFIREventScreenView parameters:params];
         } else if ([type isEqualToString:@"track"]) {
             NSString *eventName = message.event;
-            if (![RudderUtils isEmpty:eventName]) {
+            if (![RudderGA4Utils isEmpty:eventName]) {
                 NSString *firebaseEvent;
                 properties = message.properties;
                 params = [[NSMutableDictionary alloc] init];
@@ -75,18 +75,18 @@
                     firebaseEvent = kFIREventAppOpen;
                 }
                 // Handle E-Commerce event
-                else if (ECOMMERCE_EVENTS_MAPPING[eventName]){
-                    firebaseEvent = ECOMMERCE_EVENTS_MAPPING[eventName];
-                    if (![RudderUtils isEmpty:properties]) {
+                else if (ECOMMERCE_EVENTS_MAPPING_GA4[eventName]){
+                    firebaseEvent = ECOMMERCE_EVENTS_MAPPING_GA4[eventName];
+                    if (![RudderGA4Utils isEmpty:properties]) {
                         if ([firebaseEvent isEqualToString:kFIREventShare]) {
-                            if (![RudderUtils isEmpty:properties[@"cart_id"]]) {
+                            if (![RudderGA4Utils isEmpty:properties[@"cart_id"]]) {
                                 [params setValue:properties[@"cart_id"] forKey:kFIRParameterItemID];
-                            } else if (![RudderUtils isEmpty:properties[@"product_id"]]) {
+                            } else if (![RudderGA4Utils isEmpty:properties[@"product_id"]]) {
                                 [params setValue:properties[@"product_id"] forKey:kFIRParameterItemID];
                             }
                         }
                         if ([firebaseEvent isEqualToString:kFIREventViewPromotion] || [firebaseEvent isEqualToString:kFIREventSelectPromotion]) {
-                            if (![RudderUtils isEmpty:properties[@"name"]]) {
+                            if (![RudderGA4Utils isEmpty:properties[@"name"]]) {
                                 [params setValue:properties[@"name"] forKey:kFIRParameterPromotionName];
                             }
                         }
@@ -94,7 +94,7 @@
                             [params setValue:@"product" forKey:kFIRParameterContentType];
                         }
                         if ([firebaseEvent isEqualToString:kFIREventSelectContent]) {
-                            if (![RudderUtils isEmpty:properties[@"product_id"]]) {
+                            if (![RudderGA4Utils isEmpty:properties[@"product_id"]]) {
                                 [params setValue:properties[@"product_id"] forKey:kFIRParameterItemID];
                             }
                             [params setValue:@"product" forKey:kFIRParameterContentType];
@@ -107,9 +107,9 @@
                 }
                 // Custom track event
                 else {
-                    firebaseEvent = [RudderUtils getTrimKey:eventName];
+                    firebaseEvent = [RudderGA4Utils getTrimKey:eventName];
                 }
-                if (![RudderUtils isEmpty:firebaseEvent]) {
+                if (![RudderGA4Utils isEmpty:firebaseEvent]) {
                     [self attachAllCustomProperties:params properties:properties];
                     [RSLogger logDebug:[NSString stringWithFormat:@"Logged \"%@\" to Firebase", firebaseEvent]];
                     [FIRAnalytics logEventWithName:firebaseEvent parameters:params];
@@ -122,37 +122,37 @@
 }
 
 -(void) handleECommerce:(NSMutableDictionary *) params properties: (NSDictionary *) properties firebaseEvent:(NSString *) firebaseEvent {
-    if (![RudderUtils isEmpty:properties[@"revenue"]] && [RudderUtils isNumber:properties[@"revenue"]]) {
+    if (![RudderGA4Utils isEmpty:properties[@"revenue"]] && [RudderGA4Utils isNumber:properties[@"revenue"]]) {
         [params setValue:[NSNumber numberWithDouble:[properties[@"revenue"] doubleValue]] forKey:kFIRParameterValue];
-    } else if (![RudderUtils isEmpty:properties[@"value"]] && [RudderUtils isNumber:properties[@"value"]]) {
+    } else if (![RudderGA4Utils isEmpty:properties[@"value"]] && [RudderGA4Utils isNumber:properties[@"value"]]) {
         [params setValue:[NSNumber numberWithDouble:[properties[@"value"] doubleValue]] forKey:kFIRParameterValue];
-    } else if (![RudderUtils isEmpty:properties[@"total"]] && [RudderUtils isNumber:properties[@"total"]]) {
+    } else if (![RudderGA4Utils isEmpty:properties[@"total"]] && [RudderGA4Utils isNumber:properties[@"total"]]) {
         [params setValue:[NSNumber numberWithDouble:[properties[@"total"] doubleValue]] forKey:kFIRParameterValue];
     }
-    if ([EVENT_WITH_PRODUCTS_ARRAY containsObject:firebaseEvent] && ![RudderUtils isEmpty:properties[@"products"]]) {
+    if ([EVENT_WITH_PRODUCTS_ARRAY_GA4 containsObject:firebaseEvent] && ![RudderGA4Utils isEmpty:properties[@"products"]]) {
         [self handleProducts:params properties:properties isProductsArray:YES];
     }
-    if ([EVENT_WITH_PRODUCTS_AT_ROOT containsObject:firebaseEvent]) {
+    if ([EVENT_WITH_PRODUCTS_AT_ROOT_GA4 containsObject:firebaseEvent]) {
         [self handleProducts:params properties:properties isProductsArray:NO];
     }
-    if (![RudderUtils isEmpty:properties[@"currency"]]) {
+    if (![RudderGA4Utils isEmpty:properties[@"currency"]]) {
         [params setValue:[NSString stringWithFormat:@"%@", properties[@"currency"]] forKey:kFIRParameterCurrency];
     } else {
         [params setValue:@"USD" forKey:kFIRParameterCurrency];
     }
     for (NSString *propertyKey in properties) {
-        if (ECOMMERCE_PROPERTY_MAPPING[propertyKey] && ![RudderUtils isEmpty:properties[propertyKey]]) {
-            [params setValue:[NSString stringWithFormat:@"%@", properties[propertyKey]] forKey:ECOMMERCE_PROPERTY_MAPPING[propertyKey]];
+        if (ECOMMERCE_PROPERTY_MAPPING_GA4[propertyKey] && ![RudderGA4Utils isEmpty:properties[propertyKey]]) {
+            [params setValue:[NSString stringWithFormat:@"%@", properties[propertyKey]] forKey:ECOMMERCE_PROPERTY_MAPPING_GA4[propertyKey]];
         }
     }
-    if (![RudderUtils isEmpty:properties[@"shipping"]] && [RudderUtils isNumber:properties[@"shipping"]]) {
+    if (![RudderGA4Utils isEmpty:properties[@"shipping"]] && [RudderGA4Utils isNumber:properties[@"shipping"]]) {
         [params setValue:[NSNumber numberWithDouble:[properties[@"shipping"] doubleValue]] forKey:kFIRParameterShipping];
     }
-    if (![RudderUtils isEmpty:properties[@"tax"]] && [RudderUtils isNumber:properties[@"tax"]]) {
+    if (![RudderGA4Utils isEmpty:properties[@"tax"]] && [RudderGA4Utils isNumber:properties[@"tax"]]) {
         [params setValue:[NSNumber numberWithDouble:[properties[@"tax"] doubleValue]] forKey:kFIRParameterTax];
     }
     // order_id is being mapped to FirebaseAnalytics.Param.TRANSACTION_ID.
-    if (![RudderUtils isEmpty:properties[@"order_id"]]) {
+    if (![RudderGA4Utils isEmpty:properties[@"order_id"]]) {
         [params setValue:[NSString stringWithFormat:@"%@", properties[@"order_id"]] forKey:kFIRParameterTransactionID];
         // As this change is made at version 1.0.0. So to have the backward compatibility, we're inserting order_id properties as well.
         [params setValue:[NSString stringWithFormat:@"%@", properties[@"order_id"]] forKey:@"order_id"];
@@ -182,20 +182,20 @@
         mappedProduct = [[NSMutableArray alloc] init];
         [mappedProduct addObject:productBundle];
     }
-    if (![RudderUtils isEmpty:mappedProduct]) {
+    if (![RudderGA4Utils isEmpty:mappedProduct]) {
         [params setValue:mappedProduct forKey:kFIRParameterItems];
     }
 }
 
 -(void) putProductValue:(NSMutableDictionary *) params properties:(NSDictionary *) properties {
-    for (NSString *key in PRODUCT_PROPERTIES_MAPPING) {
-        if (![RudderUtils isEmpty:properties[key]]) {
-            NSString *firebaseKey = PRODUCT_PROPERTIES_MAPPING[key];
+    for (NSString *key in PRODUCT_PROPERTIES_MAPPING_GA4) {
+        if (![RudderGA4Utils isEmpty:properties[key]]) {
+            NSString *firebaseKey = PRODUCT_PROPERTIES_MAPPING_GA4[key];
             if ([firebaseKey isEqualToString:kFIRParameterItemID] || [firebaseKey isEqualToString:kFIRParameterItemName] || [firebaseKey isEqualToString:kFIRParameterItemCategory]) {
                 [params setValue:[NSString stringWithFormat:@"%@", properties[key]] forKey:firebaseKey];
                 continue;;
             }
-            if ([RudderUtils isNumber:properties[key]]) {
+            if ([RudderGA4Utils isNumber:properties[key]]) {
                 if ([firebaseKey isEqualToString:kFIRParameterQuantity]) {
                     [params setValue:[NSNumber numberWithInteger:[(NSNumber *)properties[key] intValue]] forKey:firebaseKey];
                     continue;;
@@ -209,11 +209,11 @@
 }
 
 - (void) attachAllCustomProperties: (NSMutableDictionary *) params properties: (NSDictionary *) properties {
-    if(![RudderUtils isEmpty:properties] && params != nil) {
+    if(![RudderGA4Utils isEmpty:properties] && params != nil) {
         for (NSString *key in [properties keyEnumerator]) {
-            NSString* firebaseKey = [RudderUtils getTrimKey:key];
+            NSString* firebaseKey = [RudderGA4Utils getTrimKey:key];
             id value = properties[key];
-            if ([TRACK_RESERVED_KEYWORDS containsObject:firebaseKey] || [RudderUtils isEmpty:value]) {
+            if ([TRACK_RESERVED_KEYWORDS_GA4 containsObject:firebaseKey] || [RudderGA4Utils isEmpty:value]) {
                 continue;
             }
             if ([value isKindOfClass:[NSNumber class]]) {

@@ -5,24 +5,24 @@
 //  Created by Abhishek Pandey on 28/10/21.
 //
 
-#import "RudderUtils.h"
+#import "RudderGA4Utils.h"
 
-@implementation RudderUtils
+@implementation RudderGA4Utils
 
-NSArray * IDENTIFY_RESERVED_KEYWORDS;
-NSArray *TRACK_RESERVED_KEYWORDS;
-NSDictionary *ECOMMERCE_EVENTS_MAPPING;
-NSDictionary *PRODUCT_PROPERTIES_MAPPING;
-NSArray *EVENT_WITH_PRODUCTS_ARRAY;
-NSDictionary *ECOMMERCE_PROPERTY_MAPPING;
-NSArray *EVENT_WITH_PRODUCTS_AT_ROOT;
+NSArray * IDENTIFY_RESERVED_KEYWORDS_GA4;
+NSArray *TRACK_RESERVED_KEYWORDS_GA4;
+NSDictionary *ECOMMERCE_EVENTS_MAPPING_GA4;
+NSDictionary *PRODUCT_PROPERTIES_MAPPING_GA4;
+NSArray *EVENT_WITH_PRODUCTS_ARRAY_GA4;
+NSDictionary *ECOMMERCE_PROPERTY_MAPPING_GA4;
+NSArray *EVENT_WITH_PRODUCTS_AT_ROOT_GA4;
 
 + (void)initialize {
-    IDENTIFY_RESERVED_KEYWORDS =  [[NSArray alloc] initWithObjects:@"age", @"gender", @"interest", nil];
+    IDENTIFY_RESERVED_KEYWORDS_GA4 =  [[NSArray alloc] initWithObjects:@"age", @"gender", @"interest", nil];
     
-    TRACK_RESERVED_KEYWORDS = [[NSArray alloc] initWithObjects:@"product_id", @"name", @"category", @"quantity", @"price", @"currency", @"value", @"revenue", @"total", @"tax", @"shipping", @"coupon", @"cart_id", @"payment_method", @"query", @"list_id", @"promotion_id", @"creative", @"affiliation", @"share_via", @"products", @"order_id", kFIRParameterScreenName, nil];
+    TRACK_RESERVED_KEYWORDS_GA4 = [[NSArray alloc] initWithObjects:@"product_id", @"name", @"category", @"quantity", @"price", @"currency", @"value", @"revenue", @"total", @"tax", @"shipping", @"coupon", @"cart_id", @"payment_method", @"query", @"list_id", @"promotion_id", @"creative", @"affiliation", @"share_via", @"products", @"order_id", kFIRParameterScreenName, nil];
     
-    ECOMMERCE_EVENTS_MAPPING = @{
+    ECOMMERCE_EVENTS_MAPPING_GA4 = @{
         ECommPaymentInfoEntered : kFIREventAddPaymentInfo,
         ECommProductAdded : kFIREventAddToCart,
         ECommProductAddedToWishList : kFIREventAddToWishlist,
@@ -41,7 +41,7 @@ NSArray *EVENT_WITH_PRODUCTS_AT_ROOT;
         ECommCartViewed : kFIREventViewCart
     };
 
-    PRODUCT_PROPERTIES_MAPPING = @{
+    PRODUCT_PROPERTIES_MAPPING_GA4 = @{
         @"product_id" : kFIRParameterItemID,
         @"name" : kFIRParameterItemName,
         @"category" : kFIRParameterItemCategory,
@@ -49,7 +49,7 @@ NSArray *EVENT_WITH_PRODUCTS_AT_ROOT;
         @"price" : kFIRParameterPrice
     };
 
-    EVENT_WITH_PRODUCTS_ARRAY = [[NSArray alloc] initWithObjects:
+    EVENT_WITH_PRODUCTS_ARRAY_GA4 = [[NSArray alloc] initWithObjects:
                                  kFIREventBeginCheckout,
                                  kFIREventPurchase,
                                  kFIREventRefund,
@@ -57,14 +57,14 @@ NSArray *EVENT_WITH_PRODUCTS_AT_ROOT;
                                  kFIREventViewCart,
                                  nil];
     
-    EVENT_WITH_PRODUCTS_AT_ROOT = [[NSArray alloc] initWithObjects:
+    EVENT_WITH_PRODUCTS_AT_ROOT_GA4 = [[NSArray alloc] initWithObjects:
                                    kFIREventAddToCart,
                                    kFIREventAddToWishlist,
                                    kFIREventViewItem,
                                    kFIREventRemoveFromCart,
                                    nil];
     
-    ECOMMERCE_PROPERTY_MAPPING = @{
+    ECOMMERCE_PROPERTY_MAPPING_GA4 = @{
         @"payment_method" : kFIRParameterPaymentType,
         @"coupon" : kFIRParameterCoupon,
         @"query" : kFIRParameterSearchTerm,
