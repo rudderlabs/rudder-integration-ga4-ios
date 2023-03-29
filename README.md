@@ -11,14 +11,14 @@ Questions? Please join our [Slack channel](https://resources.rudderstack.com/joi
 
 ## Integrating Firebase with the RudderStack iOS SDK for Google Analytics 4
 
-> **_NOTE:_** `Rudder-GA4` version `1.0.1` is compatible with the `Firebase/Analytics` version `8.15.0`.
+> **_NOTE:_** `Rudder-GA4` version `1.1.0` is compatible with the `Firebase/Analytics` version `8.15.0`.
 
 1. Add [Google Analytics 4](https://developers.google.com/analytics/devguides/collection/ga4) as a destination in the [RudderStack dashboard](https://app.rudderstack.com/).
 
 2. Rudder-GA4 is available through [CocoaPods](https://cocoapods.org). To install it, add the following line to your Podfile and followed by `pod install`:
 
 ```ruby
-pod 'Rudder-GA4', '~> 1.0.1'
+pod 'Rudder-GA4', '~> 1.1.0'
 ```
 
 3. Download the `GoogleService-Info.plist` from your Firebase console and put it in your project.
