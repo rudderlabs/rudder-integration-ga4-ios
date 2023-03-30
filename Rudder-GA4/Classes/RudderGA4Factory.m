@@ -21,7 +21,7 @@ static RudderGA4Factory *sharedInstance;
 }
 
 - (nonnull NSString *)key {
-    return @"Google Analytics 4";
+    return @"Google Analytics 4 (GA4)";
 }
 
 - (nonnull id<RSIntegration>)initiate:(nonnull NSDictionary *)config client:(nonnull RSClient *)client rudderConfig:(nonnull RSConfig *)rudderConfig {

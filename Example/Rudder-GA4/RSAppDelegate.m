@@ -9,22 +9,28 @@
 #import "RSAppDelegate.h"
 #import <Rudder/Rudder.h>
 #import "RudderGA4Factory.h"
+#import "Rudder_GA4_Example-Swift.h"
 
 @implementation RSAppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    NSString *DATA_PLANE_URL = @"https://rudderstacbumvdrexzj.dataplane.rudderstack.com";
-    NSString *WRITE_KEY = @"203EnCjvGV6qhvrcaz7MyWiQmJx";
-    
-    // Override point for customization after application launch.
-    RSConfigBuilder *builder = [[RSConfigBuilder alloc] init];
-    [builder withDataPlaneUrl:DATA_PLANE_URL];
-    [builder withFactory:[RudderGA4Factory instance]];
-    [builder withLoglevel:RSLogLevelNone];
-    [builder withTrackLifecycleEvens:@NO];
-    [RSClient getInstance:WRITE_KEY config:[builder build]];
-    
+    /// Copy the `SampleRudderConfig.plist` and rename it to`RudderConfig.plist` on the same directory.
+    /// Update the values as per your need.
+    NSString *path = [[NSBundle mainBundle] pathForResource:@"RudderConfig" ofType:@"plist"];
+    if (path != nil) {
+        NSURL *url = [NSURL fileURLWithPath:path];
+        RudderConfig *rudderConfig = [RudderConfig createFrom:url];
+        if (rudderConfig != nil) {
+            RSConfigBuilder *configBuilder = [[RSConfigBuilder alloc] init];
+            [configBuilder withDataPlaneUrl:rudderConfig.PROD_DATA_PLANE_URL];
+            [configBuilder withLoglevel:RSLogLevelVerbose];
+            [configBuilder withFactory:[RudderGA4Factory instance]];
+            [configBuilder withTrackLifecycleEvens:NO];
+            [configBuilder withSleepTimeOut:3];
+            [RSClient getInstance:rudderConfig.WRITE_KEY config:[configBuilder build]];
+        }
+    }
     return YES;
 }
 

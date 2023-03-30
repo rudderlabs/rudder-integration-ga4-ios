@@ -2,6 +2,11 @@ require 'json'
 
 package = JSON.parse(File.read(File.join(__dir__, 'package.json')))
 
+firebase_sdk_version = '~> 10.6.0'
+rudder_sdk_version = '~> 1.12'
+deployment_target = '11.0'
+firebase_analytics = 'FirebaseAnalytics'
+
 Pod::Spec.new do |s|
   s.name             = 'Rudder-GA4'
   s.version          = package['version']
@@ -15,14 +20,32 @@ Pod::Spec.new do |s|
   s.author           = { 'RudderStack' => 'arnab@rudderlabs.com' }
   s.source           = { :git => 'https://github.com/rudderlabs/rudder-integration-ga4-ios.git' , :tag => "v#{s.version}"}
   s.platform         = :ios, "9.0"
+  
   s.requires_arc = true
-
-  s.ios.deployment_target = '9.0'
-
+  s.ios.deployment_target = deployment_target
   s.source_files = 'Rudder-GA4/Classes/**/*'
-
   s.static_framework = true
-
-  s.dependency 'Rudder', '~> 1.0'
-  s.dependency 'Firebase/Analytics', '~> 8.15.0'
+  
+  if defined?($GA4SDKVersion)
+    firebase_sdk_version = $GA4SDKVersion
+    if (firebase_sdk_version.to_f < 9.0)
+      firebase_analytics = 'Firebase/Analytics'
+      deployment_target = '9.0'
+    elsif (firebase_sdk_version.to_f >= 9.0) && (firebase_sdk_version.to_f < 10.0)
+      deployment_target = '10.0'
+    end
+    Pod::UI.puts "#{s.name}: Using user specified Firebase SDK version '#{firebase_sdk_version}'"
+  else
+    Pod::UI.puts "#{s.name}: Using default Firebase SDK version '#{firebase_sdk_version}'"
+  end
+  
+  if defined?($RudderSDKVersion)
+    Pod::UI.puts "#{s.name}: Using user specified Rudder SDK version '#{$RudderSDKVersion}'"
+    rudder_sdk_version = $RudderSDKVersion
+  else
+    Pod::UI.puts "#{s.name}: Using default Rudder SDK version '#{rudder_sdk_version}'"
+  end
+  
+  s.dependency 'Rudder', rudder_sdk_version
+  s.dependency firebase_analytics, firebase_sdk_version
 end
